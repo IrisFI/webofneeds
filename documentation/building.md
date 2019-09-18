@@ -1,37 +1,42 @@
-- [Building](#building)
-  - [1. Java SDK version 8 or newer](#1-java-sdk-version-8-or-newer)
-  - [2. Eclipse for Java Enterprise Developers (4.7 Oxygen or newer)](#2-eclipse-for-java-enterprise-developers-47-oxygen-or-newer)
-  - [3. Install Maven (3.3 or newer)](#3-install-maven-33-or-newer)
-  - [4. Git Clone to Your Eclipse Workspace](#4-git-clone-to-your-eclipse-workspace)
-  - [5. Import the Maven-project in Eclipse](#5-import-the-maven-project-in-eclipse)
-  - [6. Deactivate "autobuild"](#6-deactivate-%22autobuild%22)
-  - [7. Use the provided code style](#7-use-the-provided-code-style)
-  - [8. Set maven profile `skip-tests`](#8-set-maven-profile-skip-tests)
-  - [9. Maven install](#9-maven-install)
-  - [10. On Windows: <PROJECT_ROOT>/webofneeds/won-owner-webapp/src/main/webapp/node/npm -g windows-build-tools](#10-on-windows-projectrootwebofneedswon-owner-webappsrcmainwebappnodenpm--g-windows-build-tools)
-  - [11. Copy and Adjust Configurations](#11-copy-and-adjust-configurations)
-  - [12. Download/Install the latest Tomcat 9 server](#12-downloadinstall-the-latest-tomcat-9-server)
-  - [13. Add Tomcat to Eclipse](#13-add-tomcat-to-eclipse)
-  - [14. Update Connector-Statement in Tomcat's server.xml](#14-update-connector-statement-in-tomcats-serverxml)
-  - [15. Edit the Server Configuration in Eclipse](#15-edit-the-server-configuration-in-eclipse)
+# Table of Contents
+
+[Building](#building)
+
+1. [Java SDK version 8 or newer](#1-java-sdk-version-8-or-newer)
+2. [Eclipse for Java Enterprise Developers (4.7 Oxygen or newer)](#2-eclipse-for-java-enterprise-developers-47-oxygen-or-newer)
+3. [Install Maven (3.3 or newer)](#3-install-maven-33-or-newer)
+4. [Git Clone to Your Eclipse Workspace](#4-git-clone-to-your-eclipse-workspace)
+5. [Import the Maven-project in Eclipse](#5-import-the-maven-project-in-eclipse)
+6. [Deactivate "autobuild"](#6-deactivate-autobuild)
+7. [Use the provided code style](#7-use-the-provided-code-style)
+8. [Set maven profile `skip-tests`](#8-set-maven-profile-skip-tests)
+9. [Maven install](#9-maven-install)
+10. [Set up Windows Build Tools](#10-set-up-windows-build-tools)
+11. [Copy and Adjust Configurations](#11-copy-and-adjust-configurations)
+12. [Download/Install the latest Tomcat 9 server](#12-downloadinstall-the-latest-tomcat-9-server)
+13. [Add Tomcat to Eclipse](#13-add-tomcat-to-eclipse)
+14. [Update Connector-Statement in Tomcat's server.xml](#14-update-connector-statement-in-tomcats-serverxml)
+15. [Edit the Server Configuration in Eclipse](#15-edit-the-server-configuration-in-eclipse)
     - [VM arguments](#vm-arguments)
     - [Add the JSTL jar to classpath](#add-the-jstl-jar-to-classpath)
     - [Add the required libs to the classpath](#add-the-required-libs-to-the-classpath)
     - [Server Overview Options](#server-overview-options)
     - [Options to speed up Startup](#options-to-speed-up-startup)
-  - [16. Generate cryptographic keys](#16-generate-cryptographic-keys)
-  - [17. Install the bouncycastle security provider and the trust manager](#17-install-the-bouncycastle-security-provider-and-the-trust-manager)
-  - [18. Start server](#18-start-server)
-- [Troubleshooting](#troubleshooting)
-  - [Tomcat complains about Missing Keystore](#tomcat-complains-about-missing-keystore)
-  - [Maven build fails with NoClassDefFoundException: java/sql/SQLException](#maven-build-fails-with-noclassdeffoundexception-javasqlsqlexception)
-  - [Out of memory error](#out-of-memory-error)
-  - [icu4j: Invalid byte tag in constant pool](#icu4j-invalid-byte-tag-in-constant-pool)
-  - [won.protocol.exception.RDFStorageException: Could not create File!](#wonprotocolexceptionrdfstorageexception-could-not-create-file)
-  - [Port Bind Problem: org.apache.coyote.AbstractProtocol.init Failed to initialize end point associated with ProtocolHandler ["http-apr-8443"]](#port-bind-problem-orgapachecoyoteabstractprotocolinit-failed-to-initialize-end-point-associated-with-protocolhandler-%22http-apr-8443%22)
-  - [maven dies in won-owner-webapp during 'clean' task](#maven-dies-in-won-owner-webapp-during-clean-task)
-  - [java.security.NoSuchProviderException: no such provider: BC](#javasecuritynosuchproviderexception-no-such-provider-bc)
-  - [Exception in Owner-Webapp log: PKIX path building failed](#exception-in-owner-webapp-log-pkix-path-building-failed)
+16. [Generate cryptographic keys](#16-generate-cryptographic-keys)
+17. [Install the bouncycastle security provider and the trust manager](#17-install-the-bouncycastle-security-provider-and-the-trust-manager)
+18. [Start server](#18-start-server)
+
+[Troubleshooting](#troubleshooting)
+
+- [Tomcat complains about Missing Keystore](#tomcat-complains-about-missing-keystore)
+- [Maven build fails with NoClassDefFoundException: java/sql/SQLException](#maven-build-fails-with-noclassdeffoundexception-javasqlsqlexception)
+- [Out of memory error](#out-of-memory-error)
+- [icu4j: Invalid byte tag in constant pool](#icu4j-invalid-byte-tag-in-constant-pool)
+- [won.protocol.exception.RDFStorageException: Could not create File!](#wonprotocolexceptionrdfstorageexception-could-not-create-file)
+- [Port Bind Problem: org.apache.coyote.AbstractProtocol.init Failed to initialize end point associated with ProtocolHandler ["http-apr-8443"]](#port-bind-problem-orgapachecoyoteabstractprotocolinit-failed-to-initialize-end-point-associated-with-protocolhandler-%22http-apr-8443%22)
+- [maven dies in won-owner-webapp during 'clean' task](#maven-dies-in-won-owner-webapp-during-clean-task)
+- [java.security.NoSuchProviderException: no such provider: BC](#javasecuritynosuchproviderexception-no-such-provider-bc)
+- [Exception in Owner-Webapp log: PKIX path building failed](#exception-in-owner-webapp-log-pkix-path-building-failed)
 
 # Building
 
@@ -99,7 +104,9 @@ File >> Import >> Existing Maven Project >> select the (folder with) the pom.xml
 
 Troubleshooting: If you don't have the "Existing Maven Project"-option, make sure you have the addons mentioned in the [eclipse section above](#2-eclipse-java-ee).
 
-## 6. Deactivate "autobuild"
+## 6. Deactivate autobuild
+
+To deactivate "autobuild" in Eclipse, go to
 
 Window >> Preferences >> General >> Workspace >> Build >> uncheck "Build automatically"
 
@@ -121,7 +128,9 @@ Either run `mvn install -P skip-tests` in the command-line or right-click "webof
 
 Further information on what you can do with the maven-configuration can be found in [./maven.md](./maven.md).
 
-## 10. On Windows: <PROJECT_ROOT>/webofneeds/won-owner-webapp/src/main/webapp/node/npm -g windows-build-tools
+## 10. Set up Windows Build Tools
+
+> On Windows systems only
 
 When you the maven-install reaches the owner-application, the maven-frontend plugin will install it's own version of `npm`. Using that run the following with admin permissions:
 
