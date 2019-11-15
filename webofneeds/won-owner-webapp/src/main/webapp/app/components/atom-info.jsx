@@ -60,6 +60,15 @@ const mapStateToProps = (state, ownProps) => {
   const ownedChatSocketAtoms =
     ownedAtoms && ownedAtoms.filter(atom => atomUtils.hasChatSocket(atom));
 
+  const reactionTypes = atomUtils.getReactionUseCases(atom).toArray();
+  const ownedReactionUseCases =
+    ownedChatSocketAtoms &&
+    ownedChatSocketAtoms.filter(
+      ownAtom =>
+        reactionTypes &&
+        reactionTypes.includes(atomUtils.getMatchedUseCaseIdentifier(ownAtom))
+    );
+
   return {
     className: ownProps.className,
     atomUri: ownProps.atomUri,
@@ -71,6 +80,9 @@ const mapStateToProps = (state, ownProps) => {
     showReactionUseCases,
     reactionUseCasesArray: showReactionUseCases
       ? atomUtils.getReactionUseCases(atom).toArray()
+      : [],
+    ownedReactionUseCasesArray: ownedReactionUseCases
+      ? ownedReactionUseCases.toArray()
       : [],
     enabledUseCasesArray: showEnabledUseCases
       ? atomUtils.getEnabledUseCases(atom).toArray()
@@ -170,48 +182,16 @@ class AtomInfo extends React.Component {
       const reactionUseCaseElements =
         this.props.showReactionUseCases &&
         this.props.reactionUseCasesArray &&
-        this.props.reactionUseCasesArray.map((ucIdentifier, index) => {
-          return (
-            <button
-              key={ucIdentifier + "-" + index}
-              className="won-button--filled red atom-info__footer__button"
-              onClick={() => this.selectUseCase(ucIdentifier)}
-            >
-              {useCaseUtils.getUseCaseIcon(ucIdentifier) && (
-                <svg className="won-button-icon">
-                  <use
-                    xlinkHref={useCaseUtils.getUseCaseIcon(ucIdentifier)}
-                    href={useCaseUtils.getUseCaseIcon(ucIdentifier)}
-                  />
-                </svg>
-              )}
-              <span>{useCaseUtils.getUseCaseLabel(ucIdentifier)}</span>
-            </button>
-          );
-        });
+        this.props.reactionUseCasesArray.map((ucIdentifier, index) =>
+          this.getUseCaseTypeButton(ucIdentifier, index)
+        );
 
       const enabledUseCaseElements =
         this.props.showEnabledUseCases &&
         this.props.enabledUseCasesArray &&
-        this.props.enabledUseCasesArray.map((ucIdentifier, index) => {
-          return (
-            <button
-              key={ucIdentifier + "-" + index}
-              className="won-button--filled red atom-info__footer__button"
-              onClick={() => this.selectUseCase(ucIdentifier)}
-            >
-              {useCaseUtils.getUseCaseIcon(ucIdentifier) && (
-                <svg className="won-button-icon">
-                  <use
-                    xlinkHref={useCaseUtils.getUseCaseIcon(ucIdentifier)}
-                    href={useCaseUtils.getUseCaseIcon(ucIdentifier)}
-                  />
-                </svg>
-              )}
-              <span>{useCaseUtils.getUseCaseLabel(ucIdentifier)}</span>
-            </button>
-          );
-        });
+        this.props.enabledUseCasesArray.map((ucIdentifier, index) =>
+          this.getUseCaseTypeButton(ucIdentifier, index)
+        );
 
       footerElement = (
         <div className="atom-info__footer">
@@ -278,6 +258,26 @@ class AtomInfo extends React.Component {
         />
         {footerElement}
       </won-atom-info>
+    );
+  }
+
+  getUseCaseTypeButton(ucIdentifier, index) {
+    return (
+      <button
+        key={ucIdentifier + "-" + index}
+        className="won-button--filled red atom-info__footer__button"
+        onClick={() => this.selectUseCase(ucIdentifier)}
+      >
+        {useCaseUtils.getUseCaseIcon(ucIdentifier) && (
+          <svg className="won-button-icon">
+            <use
+              xlinkHref={useCaseUtils.getUseCaseIcon(ucIdentifier)}
+              href={useCaseUtils.getUseCaseIcon(ucIdentifier)}
+            />
+          </svg>
+        )}
+        <span>{useCaseUtils.getUseCaseLabel(ucIdentifier)}</span>
+      </button>
     );
   }
 
@@ -426,6 +426,7 @@ AtomInfo.propTypes = {
   showReactionUseCases: PropTypes.bool,
   reactionUseCasesArray: PropTypes.arrayOf(PropTypes.object),
   enabledUseCasesArray: PropTypes.arrayOf(PropTypes.object),
+  ownedReactionUseCasesArray: PropTypes.arrayOf(PropTypes.object),
   atomLoading: PropTypes.bool,
   showFooter: PropTypes.bool,
   addHolderUri: PropTypes.string,
