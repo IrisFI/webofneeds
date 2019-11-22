@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { get, getIn } from "../utils.js";
 import { actionCreators } from "../actions/actions.js";
 import WonAtomHeaderBig from "./atom-header-big.jsx";
+import WonAtomHeader from "../components/atom-header.jsx";
 import WonAtomMenu from "./atom-menu.jsx";
 import WonAtomContent from "./atom-content.jsx";
 import ChatTextfield from "./chat-textfield.jsx";
@@ -61,7 +62,7 @@ const mapStateToProps = (state, ownProps) => {
     ownedAtoms && ownedAtoms.filter(atom => atomUtils.hasChatSocket(atom));
 
   const reactionTypes = atomUtils.getReactionUseCases(atom).toArray();
-  const ownedReactionUseCases =
+  const ownedReactionAtoms =
     ownedChatSocketAtoms &&
     ownedChatSocketAtoms.filter(
       ownAtom =>
@@ -81,8 +82,8 @@ const mapStateToProps = (state, ownProps) => {
     reactionUseCasesArray: showReactionUseCases
       ? atomUtils.getReactionUseCases(atom).toArray()
       : [],
-    ownedReactionUseCasesArray: ownedReactionUseCases
-      ? ownedReactionUseCases.toArray()
+    ownedReactionAtomArray: ownedReactionAtoms
+      ? ownedReactionAtoms.toArray()
       : [],
     enabledUseCasesArray: showEnabledUseCases
       ? atomUtils.getEnabledUseCases(atom).toArray()
@@ -178,7 +179,27 @@ class AtomInfo extends React.Component {
   render() {
     let footerElement;
 
+    // TODO: identicons don't work
+    // TODO: merge with reactionUseCaseElements
+    // TODO: instead of multiple buttons, have one button with dropdown
+    // TODO: use atom-header-thingy here, it's done already
     if (this.props.showFooter) {
+      const ownReactionAtomElements =
+        this.props.showReactionUseCases &&
+        this.props.ownedReactionAtomArray &&
+        this.props.ownedReactionAtomArray.map((atom, index) => {
+          const label = atom && atom.get("humanReadable");
+          //const identicon = atom && atom.get("identiconSvg");
+          return (
+            <WonAtomHeader
+              key={label + "-" + index}
+              atomUri={atom && get(atom, "uri")}
+              hideTimestamp={true}
+              onClick={() => this.sendRequest(atom)}
+            />
+          );
+        });
+
       const reactionUseCaseElements =
         this.props.showReactionUseCases &&
         this.props.reactionUseCasesArray &&
@@ -229,6 +250,7 @@ class AtomInfo extends React.Component {
               )}
             </React.Fragment>
           )}
+          {ownReactionAtomElements}
           {reactionUseCaseElements}
           {enabledUseCaseElements}
           {this.props.isInactive && (
@@ -291,6 +313,30 @@ class AtomInfo extends React.Component {
       mode: "CONNECT",
       holderUri: this.props.addHolderUri ? this.props.holderUri : undefined,
     });
+  }
+
+  sendRequest(ownAtom) {
+    if (!this.props.loggedIn) {
+      // this should not happen as not logged in accounts don't have owned atoms
+      console.warn("Tried to connect from owned atom while not logged in!");
+      return;
+    }
+    // FIXME: needs checks to prevent multiple connections!
+    const ownAtomUri = ownAtom.get("uri");
+    const ownChatSocketUri = atomUtils.getSocketUri(
+      ownAtom,
+      won.CHAT.ChatSocketCompacted
+    );
+
+    // current issue: error that ownedAtom has no chat socket -> but it does!
+    this.props.connect(
+      ownAtomUri,
+      undefined,
+      this.props.atomUri,
+      undefined,
+      ownChatSocketUri,
+      this.props.chatSocketUri
+    );
   }
 
   sendAdHocRequest(message, connectToSocketUri, personaUri) {
@@ -426,7 +472,7 @@ AtomInfo.propTypes = {
   showReactionUseCases: PropTypes.bool,
   reactionUseCasesArray: PropTypes.arrayOf(PropTypes.object),
   enabledUseCasesArray: PropTypes.arrayOf(PropTypes.object),
-  ownedReactionUseCasesArray: PropTypes.arrayOf(PropTypes.object),
+  ownedReactionAtomArray: PropTypes.arrayOf(PropTypes.object),
   atomLoading: PropTypes.bool,
   showFooter: PropTypes.bool,
   addHolderUri: PropTypes.string,
