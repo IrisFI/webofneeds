@@ -323,19 +323,25 @@ class AtomInfo extends React.Component {
     }
     // FIXME: needs checks to prevent multiple connections!
     const ownAtomUri = ownAtom.get("uri");
-    const ownChatSocketUri = atomUtils.getSocketUri(
-      ownAtom,
-      won.CHAT.ChatSocketCompacted
-    );
+    const ownSocketType = atomUtils.hasChatSocket(ownAtom)
+      ? won.CHAT.ChatSocketCompacted
+      : atomUtils.hasGroupSocket(ownAtom)
+        ? won.GROUP.GroupSocketCompacted
+        : undefined;
+    const otherSocketType = this.props.chatSocketUri
+      ? won.CHAT.ChatSocketCompacted
+      : this.props.groupSocketUri
+        ? won.GROUP.GroupSocketCompacted
+        : undefined;
 
-    // current issue: error that ownedAtom has no chat socket -> but it does!
+    // TODO: provide feedback on successfully established connection!
     this.props.connect(
       ownAtomUri,
       undefined,
       this.props.atomUri,
       undefined,
-      ownChatSocketUri,
-      this.props.chatSocketUri
+      ownSocketType,
+      otherSocketType
     );
   }
 
