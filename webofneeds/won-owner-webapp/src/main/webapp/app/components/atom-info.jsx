@@ -321,7 +321,7 @@ class AtomInfo extends React.Component {
       console.warn("Tried to connect from owned atom while not logged in!");
       return;
     }
-    // FIXME: needs checks to prevent multiple connections!
+
     const ownAtomUri = ownAtom.get("uri");
     const ownSocketType = atomUtils.hasChatSocket(ownAtom)
       ? won.CHAT.ChatSocketCompacted
@@ -334,7 +334,6 @@ class AtomInfo extends React.Component {
         ? won.GROUP.GroupSocketCompacted
         : undefined;
 
-    // TODO: provide feedback on successfully established connection!
     this.props.connect(
       ownAtomUri,
       undefined,
@@ -343,6 +342,10 @@ class AtomInfo extends React.Component {
       ownSocketType,
       otherSocketType
     );
+
+    // redirect to chats view to show new connection
+    // maybe this could be improved by opening the new connection
+    this.props.routerGoResetParams("connections");
   }
 
   sendAdHocRequest(message, connectToSocketUri, personaUri) {
